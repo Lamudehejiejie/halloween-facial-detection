@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -L -o \"public/models/tiny_face_detector_model-weights_manifest.json\" \"https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights/tiny_face_detector_model-weights_manifest.json\")",
+      "Bash(curl -L -o \"public/models/tiny_face_detector_model-shard1\" \"https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights/tiny_face_detector_model-shard1\")"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
