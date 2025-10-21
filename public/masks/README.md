@@ -4,8 +4,11 @@ Add your realistic face mask images to this directory.
 
 ## Requirements
 
-- **Format**: PNG with transparency
-- **Resolution**: At least 512x512 pixels (higher is better)
+- **Format**: PNG with transparency (RGBA)
+- **Recommended Size**: 800x1000 pixels (portrait orientation)
+- **Minimum Size**: 512x512 pixels
+- **Maximum Size**: 2048x2048 pixels
+- **File Size**: Keep under 2MB for fast loading
 - **Content**: Front-facing realistic face
 - **Transparency**: Edges should fade to transparent for natural blending
 
