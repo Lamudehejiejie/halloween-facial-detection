@@ -21,13 +21,13 @@ export async function detectFace(
 ): Promise<faceapi.WithFaceExpressions<{
   detection: faceapi.FaceDetection;
   landmarks: faceapi.FaceLandmarks68;
-}> | undefined> {
-  const detection = await faceapi
-    .detectSingleFace(input, new faceapi.TinyFaceDetectorOptions())
+}>[]> {
+  const detections = await faceapi
+    .detectAllFaces(input, new faceapi.TinyFaceDetectorOptions())
     .withFaceLandmarks()
     .withFaceExpressions();
 
-  return detection;
+  return detections;
 }
 
 export function areFaceModelsLoaded(): boolean {

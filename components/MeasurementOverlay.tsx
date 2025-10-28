@@ -5,33 +5,23 @@ interface FaceBox {
   y: number;
   width: number;
   height: number;
+  maskId: string;
+  sentence: string;
+  maskType: string;
 }
 
 interface MeasurementOverlayProps {
   canvasWidth: number;
   canvasHeight: number;
-  score: number;
-  faceBox?: FaceBox;
+  faceBoxes: FaceBox[];
 }
 
 export default function MeasurementOverlay({
   canvasWidth,
   canvasHeight,
-  score,
-  faceBox,
+  faceBoxes,
 }: MeasurementOverlayProps) {
   if (!canvasWidth || !canvasHeight) return null;
-
-  // Use detected face position or fallback to center
-  const box = faceBox || {
-    x: canvasWidth * 0.3,
-    y: canvasHeight * 0.15,
-    width: canvasWidth * 0.4,
-    height: canvasHeight * 0.7,
-  };
-
-  // Calculate center X of the face for vertical line
-  const faceCenterX = box.x + box.width / 2;
 
   return (
     <svg
@@ -39,144 +29,126 @@ export default function MeasurementOverlay({
       viewBox={`0 0 ${canvasWidth} ${canvasHeight}`}
       preserveAspectRatio="none"
     >
-      {/* Vertical center line through face */}
-      <line
-        x1={faceCenterX}
-        y1={box.y}
-        x2={faceCenterX}
-        y2={box.y + box.height}
-        stroke="rgba(255, 255, 255, 0.6)"
-        strokeWidth="2"
-        strokeDasharray="10,10"
-      />
+      {/* Face rectangles with corner markers - Bold Showa style */}
+      {faceBoxes.map((box) => {
+        const rectX = box.x;
+        const rectY = box.y - 150;
+        const rectWidth = box.width * 1.1;
+        const rectHeight = box.height * 1.4;
 
-      {/* Horizontal guide lines aligned with face */}
-      {/* Top of head */}
-      <line
-        x1={box.x - 20}
-        y1={box.y}
-        x2={box.x + box.width + 20}
-        y2={box.y}
-        stroke="rgba(255, 255, 255, 0.5)"
-        strokeWidth="2"
-        strokeDasharray="5,5"
-      />
+        return (
+          <g key={box.maskId}>
+            {/* Face rectangle - retro style */}
+            <rect
+              x={rectX}
+              y={rectY}
+              width={rectWidth}
+              height={rectHeight}
+              fill="none"
+              stroke="#00ffff"
+              strokeWidth="3"
+            />
 
-      {/* Eyes level */}
-      <line
-        x1={box.x - 20}
-        y1={box.y + box.height * 0.3}
-        x2={box.x + box.width + 20}
-        y2={box.y + box.height * 0.3}
-        stroke="rgba(255, 255, 255, 0.4)"
-        strokeWidth="1"
-        strokeDasharray="5,5"
-      />
+            {/* Corner markers - retro style */}
+            {[
+              [rectX, rectY],
+              [rectX + rectWidth, rectY],
+              [rectX, rectY + rectHeight],
+              [rectX + rectWidth, rectY + rectHeight],
+            ].map(([x, y], i) => (
+              <g key={`${box.maskId}-corner-${i}`}>
+                <line
+                  x1={x - 25}
+                  y1={y}
+                  x2={x + 25}
+                  y2={y}
+                  stroke="#ff00ff"
+                  strokeWidth="4"
+                />
+                <line
+                  x1={x}
+                  y1={y - 25}
+                  x2={x}
+                  y2={y + 25}
+                  stroke="#ff00ff"
+                  strokeWidth="4"
+                />
+              </g>
+            ))}
+          </g>
+        );
+      })}
 
-      {/* Nose level */}
-      <line
-        x1={box.x - 20}
-        y1={box.y + box.height * 0.5}
-        x2={box.x + box.width + 20}
-        y2={box.y + box.height * 0.5}
-        stroke="rgba(255, 255, 255, 0.4)"
-        strokeWidth="1"
-        strokeDasharray="5,5"
-      />
+      {/* Sentences at top-right corner of each measurement overlay */}
+      {faceBoxes.map((box) => {
+        const rectX = box.x;
+        const rectY = box.y - 150;
+        const rectWidth = box.width * 1.1;
 
-      {/* Mouth level */}
-      <line
-        x1={box.x - 20}
-        y1={box.y + box.height * 0.7}
-        x2={box.x + box.width + 20}
-        y2={box.y + box.height * 0.7}
-        stroke="rgba(255, 255, 255, 0.4)"
-        strokeWidth="1"
-        strokeDasharray="5,5"
-      />
+        const boxWidth = Math.max(250, box.sentence.length * 11);
+        const boxHeight = 55;
+        const startX = rectX + rectWidth + 15;
+        const startY = rectY;
 
-      {/* Chin */}
-      <line
-        x1={box.x - 20}
-        y1={box.y + box.height}
-        x2={box.x + box.width + 20}
-        y2={box.y + box.height}
-        stroke="rgba(255, 255, 255, 0.5)"
-        strokeWidth="2"
-        strokeDasharray="5,5"
-      />
-
-      {/* Face measurement rectangle */}
-      <rect
-        x={box.x}
-        y={box.y}
-        width={box.width}
-        height={box.height}
-        fill="none"
-        stroke="rgba(255, 255, 255, 0.6)"
-        strokeWidth="2"
-      />
-
-      {/* Corner markers */}
-      {[
-        [box.x, box.y],
-        [box.x + box.width, box.y],
-        [box.x, box.y + box.height],
-        [box.x + box.width, box.y + box.height],
-      ].map(([x, y], i) => (
-        <g key={i}>
-          <line
-            x1={x - 15}
-            y1={y}
-            x2={x + 15}
-            y2={y}
-            stroke="white"
-            strokeWidth="2"
-          />
-          <line
-            x1={x}
-            y1={y - 15}
-            x2={x}
-            y2={y + 15}
-            stroke="white"
-            strokeWidth="2"
-          />
-        </g>
-      ))}
-
-      {/* Score display in top right */}
-      <g>
-        <rect
-          x={canvasWidth - 200}
-          y="20"
-          width="180"
-          height="80"
-          fill="rgba(0, 0, 0, 0.7)"
-          stroke="white"
-          strokeWidth="2"
-        />
-        <text
-          x={canvasWidth - 110}
-          y="55"
-          textAnchor="middle"
-          fill="white"
-          fontSize="40"
-          fontWeight="bold"
-          fontFamily="monospace"
-        >
-          {score}%
-        </text>
-        <text
-          x={canvasWidth - 110}
-          y="85"
-          textAnchor="middle"
-          fill="rgba(255, 255, 255, 0.8)"
-          fontSize="16"
-          fontFamily="monospace"
-        >
-          SMILE LEVEL
-        </text>
-      </g>
+        return (
+          <g key={`sentence-${box.maskId}`}>
+            {/* Retro Windows button style - outer light border */}
+            <rect
+              x={startX}
+              y={startY}
+              width={boxWidth}
+              height={boxHeight}
+              fill="#c0c0c0"
+            />
+            {/* Top-left white highlight */}
+            <line
+              x1={startX}
+              y1={startY + boxHeight}
+              x2={startX}
+              y2={startY}
+              stroke="#ffffff"
+              strokeWidth="3"
+            />
+            <line
+              x1={startX}
+              y1={startY}
+              x2={startX + boxWidth}
+              y2={startY}
+              stroke="#ffffff"
+              strokeWidth="3"
+            />
+            {/* Bottom-right dark shadow */}
+            <line
+              x1={startX + boxWidth}
+              y1={startY}
+              x2={startX + boxWidth}
+              y2={startY + boxHeight}
+              stroke="#808080"
+              strokeWidth="3"
+            />
+            <line
+              x1={startX}
+              y1={startY + boxHeight}
+              x2={startX + boxWidth}
+              y2={startY + boxHeight}
+              stroke="#808080"
+              strokeWidth="3"
+            />
+            {/* Text - simple black on gray */}
+            <text
+              x={startX + boxWidth / 2}
+              y={startY + boxHeight / 2 + 6}
+              textAnchor="middle"
+              fill="#000000"
+              fontSize="16"
+              fontWeight="bold"
+              fontFamily="MS Gothic, Courier New, monospace"
+            >
+              {box.sentence}
+            </text>
+          </g>
+        );
+      })}
     </svg>
   );
 }
