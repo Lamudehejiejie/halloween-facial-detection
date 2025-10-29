@@ -10,6 +10,7 @@ interface FaceBox {
   maskId: string;
   sentence: string;
   maskType: string;
+  landmarks?: any;
 }
 
 interface FaceMaskOverlayProps {
@@ -35,11 +36,34 @@ export default function FaceMaskOverlay({
   return (
     <>
       {faceBoxes.map((faceBox, index) => {
-        // Make mask slightly larger than face box
-        const maskWidth = faceBox.width * 1.4;
-        const maskHeight = faceBox.height * 1.4;
-        const maskX = faceBox.x - (maskWidth - faceBox.width) / 2 + 10;
-        const maskY = faceBox.y - (maskHeight - faceBox.height) / 2 - 90;
+        // Calculate mask size - proportional to face size
+        const maskWidth = faceBox.width * 1.5;
+        const maskHeight = faceBox.height * 1.5;
+
+        // Calculate mask position
+        let maskX: number;
+        let maskY: number;
+
+        if (faceBox.landmarks) {
+          // Use landmarks for accurate positioning
+          // Get nose position (landmark point 30 is nose tip)
+          const nose = faceBox.landmarks.getNose();
+          const noseTip = nose[3]; // Middle point of nose
+
+          // Position mask centered on nose, shifted up
+          maskX = noseTip.x - maskWidth / 2;
+          maskY = noseTip.y - maskHeight * 0.65; // Position above nose
+        } else {
+          // Fallback: center on face box, shifted up proportionally
+          maskX = faceBox.x - (maskWidth - faceBox.width) / 2;
+          maskY = faceBox.y - (maskHeight - faceBox.height) / 2 - faceBox.height * 0.3;
+        }
+
+        // Boundary checking to prevent cropping
+        // Add padding to ensure mask stays visible
+        const padding = 20;
+        maskX = Math.max(padding, Math.min(maskX, canvasWidth - maskWidth - padding));
+        maskY = Math.max(padding, Math.min(maskY, canvasHeight - maskHeight - padding));
 
         // Get mask based on the maskType from the faceBox
         const maskIndex = faceBox.maskType === 'marc' ? 1 : faceBox.maskType === 'tomo' ? 2 : 0;

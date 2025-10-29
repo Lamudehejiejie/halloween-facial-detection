@@ -8,28 +8,49 @@ import FaceMaskOverlay from "./FaceMaskOverlay";
 // Sentence pools for each mask
 const SENTENCES = {
   marc: [
-    "marc1",
-    "marc2",
-    "marc3",
-    "marc4",
-    "marc5",
-    "marc6",
+    "NO MORE WORKING FROM HOME",
+    "Can you do this real quick",
+    "Just get it done",
+    "We've confused flexibility with productivity.",
+    "Your productivity was invisible from home.",
+    "Collaboration is mandatory. Your presence proves it.",
+    "The office misses you. Mandatory.",
+    "Flexibility ended when performance declined.",
+    "Your desk is waiting. So am I.",
+    "Trust is rebuilt in person.",
+    "Zoom fatigue? Try commute therapy.",
+    "Remote work was a pandemic policy, not a lifestyle.",
   ],
   tomo: [
-    "tomo1",
-    "tomo2",
-    "tomo3",
-    "tomo4",
-    "tomo5",
-    "tomo6",
+    "No weekly today!",
+    "You can take off of course",
+    "Please take care",
+    "Great job, well done!",
+    "Enjoy the fruits!",
+    "Let's talk about your growth",
+    "How can I help you succeed?",
+    "Your wellbeing matters to us",
+    "Take the time you need",
+    "Your ideas matter here",
+    "Let's find what works for you",
+    "I'm proud of what you've done",
+    "Your voice should be heard",
+    "We're in this together",
+    "Balance isn't optional—it's essential",
   ],
   heng: [
-    "heng1",
-    "heng2",
-    "heng3",
-    "heng4",
-    "heng5",
-    "heng6",
+    "DON'T YOU REMEMBER HOW YOU WORK BEFORE COVID?",
+    "The future of work is 1985.",
+    "Cool office. Corporate rules.",
+    "Shibuya address. Showa mindset.",
+    "Profitability over portfolio.",
+    "We value creativity. We invoice reality.",
+    "You're an investment. Investments need returns.",
+    "The spreadsheet doesn't care about your awards.",
+    "Your timesheet is your truth.",
+    "Nostalgia isn't a business model. But it's our new policy.",
+    "We're not tracking you. We're optimizing resource allocation.",
+    "Passion doesn't pay rent. Billable hours do.",
   ],
 };
 
@@ -44,11 +65,11 @@ export default function CameraView({ onExpressionChange }: CameraViewProps) {
   const [error, setError] = useState<string>("");
   const [hasPermission, setHasPermission] = useState(false);
   const [canvasDimensions, setCanvasDimensions] = useState({ width: 0, height: 0 });
-  const [faceBoxes, setFaceBoxes] = useState<Array<{ x: number; y: number; width: number; height: number; maskId: string; sentence: string; maskType: string }>>([]);
+  const [faceBoxes, setFaceBoxes] = useState<Array<{ x: number; y: number; width: number; height: number; maskId: string; sentence: string; maskType: string; landmarks?: any }>>([]);
   const animationFrameRef = useRef<number>();
   const lastSwapTimeRef = useRef<number>(Date.now());
   const lastRenderTimeRef = useRef<number>(0);
-  const currentFacesRef = useRef<Array<{ x: number; y: number; width: number; height: number; maskId: string; sentence: string; maskType: string }>>([]);
+  const currentFacesRef = useRef<Array<{ x: number; y: number; width: number; height: number; maskId: string; sentence: string; maskType: string; landmarks?: any }>>([]);
 
   useEffect(() => {
     let stream: MediaStream;
@@ -157,6 +178,7 @@ export default function CameraView({ onExpressionChange }: CameraViewProps) {
               maskId,
               sentence,
               maskType,
+              landmarks: detection.landmarks,
             };
           });
 
@@ -228,12 +250,15 @@ export default function CameraView({ onExpressionChange }: CameraViewProps) {
       <canvas
         ref={canvasRef}
         className="absolute inset-0 w-full h-full object-contain z-10"
-        style={{ display: hasPermission ? "block" : "none" }}
+        style={{
+          display: hasPermission ? "block" : "none",
+          transform: 'scaleX(-1)'
+        }}
       />
 
       {/* Face mask overlay - sits between canvas and grid */}
       {hasPermission && faceBoxes.length > 0 && (
-        <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 15 }}>
+        <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 15, transform: 'scaleX(-1)' }}>
           <FaceMaskOverlay
             faceBoxes={faceBoxes}
             canvasWidth={canvasDimensions.width}
@@ -244,7 +269,7 @@ export default function CameraView({ onExpressionChange }: CameraViewProps) {
 
       {/* Measurement overlay */}
       {hasPermission && (
-        <div className="absolute inset-0 z-20 pointer-events-none">
+        <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 30, transform: 'scaleX(-1)' }}>
           <MeasurementOverlay
             canvasWidth={canvasDimensions.width}
             canvasHeight={canvasDimensions.height}

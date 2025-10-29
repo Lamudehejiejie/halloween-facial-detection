@@ -5,18 +5,34 @@ import CameraView from "@/components/CameraView";
 
 export default function Home() {
   const [expressionScore, setExpressionScore] = useState<number>(0);
+  const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().then(() => {
+        setIsFullscreen(true);
+      }).catch((err) => {
+        console.error(`Error attempting to enable fullscreen: ${err.message}`);
+      });
+    } else {
+      document.exitFullscreen().then(() => {
+        setIsFullscreen(false);
+      });
+    }
+  };
 
   return (
     <main
-      className="min-h-screen flex flex-col items-center justify-center p-8"
+      className="h-screen flex flex-col items-center justify-center p-4"
       style={{
         background: '#a8b8c8',
         fontFamily: 'MS Gothic, Courier New, monospace',
+        overflow: 'hidden',
       }}
     >
       {/* Retro Windows-style Header */}
       <div
-        className="mb-4 w-full max-w-7xl"
+        className="mb-2 w-full max-w-7xl flex-shrink-0"
         style={{
           background: '#c0c0c0',
           border: '2px outset #ffffff',
@@ -35,7 +51,7 @@ export default function Home() {
             alignItems: 'center',
           }}
         >
-          <span>■ 勤務時間識別システム</span>
+          <span>■ 思考行動強制システム</span>
           <div style={{ display: 'flex', gap: '4px' }}>
             <button
               style={{
@@ -51,6 +67,7 @@ export default function Home() {
               _
             </button>
             <button
+              onClick={toggleFullscreen}
               style={{
                 width: '24px',
                 height: '24px',
@@ -60,6 +77,7 @@ export default function Home() {
                 fontWeight: 'bold',
                 cursor: 'pointer',
               }}
+              title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
             >
               □
             </button>
@@ -81,17 +99,17 @@ export default function Home() {
         <div
           style={{
             background: '#c0c0c0',
-            padding: '12px',
+            padding: '8px',
           }}
         >
           <p
             style={{
-              fontSize: '14px',
+              fontSize: '13px',
               color: '#000000',
-              marginBottom: '8px',
+              marginBottom: '6px',
             }}
           >
-            社長の言う質問をしっかり聞いて下さい。
+            社長のいうことをしっかり聞いて下さい。
           </p>
           <div
             style={{
@@ -102,18 +120,21 @@ export default function Home() {
               color: '#000000',
             }}
           >
-            TELL ME YOUR BILLABLE HOURS.
+            LISTEN TO WHAT THE DIRECTORS SAY.
           </div>
         </div>
       </div>
 
       {/* Camera container - retro Windows style */}
       <div
-        className="w-full max-w-7xl aspect-video"
+        className="w-full max-w-7xl flex-grow"
         style={{
           background: '#c0c0c0',
-          border: '2px outsetrgb(0, 0, 0)',
+          border: '2px outset rgb(0, 0, 0)',
           padding: '4px',
+          minHeight: 0,
+          display: 'flex',
+          flexDirection: 'column',
         }}
       >
         <CameraView onExpressionChange={setExpressionScore} />
@@ -121,7 +142,7 @@ export default function Home() {
 
       {/* Footer - retro status bar style */}
       <div
-        className="mt-4 w-full max-w-7xl"
+        className="mt-2 w-full max-w-7xl flex-shrink-0"
         style={{
           background: '#c0c0c0',
           border: '2px inset #808080',

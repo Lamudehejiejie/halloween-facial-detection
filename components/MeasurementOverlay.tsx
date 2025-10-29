@@ -8,6 +8,7 @@ interface FaceBox {
   maskId: string;
   sentence: string;
   maskType: string;
+  landmarks?: any;
 }
 
 interface MeasurementOverlayProps {
@@ -32,9 +33,10 @@ export default function MeasurementOverlay({
       {/* Face rectangles with corner markers - Bold Showa style */}
       {faceBoxes.map((box) => {
         const rectX = box.x;
-        const rectY = box.y - 150;
+        // Use proportional offset instead of hardcoded value
+        const rectY = box.y - box.height * 0.5;
         const rectWidth = box.width * 1.1;
-        const rectHeight = box.height * 1.4;
+        const rectHeight = box.height * 1.5;
 
         return (
           <g key={box.maskId}>
@@ -82,16 +84,38 @@ export default function MeasurementOverlay({
       {/* Sentences at top-right corner of each measurement overlay */}
       {faceBoxes.map((box) => {
         const rectX = box.x;
-        const rectY = box.y - 150;
+        // Use proportional offset instead of hardcoded value
+        const rectY = box.y - box.height * 0.5;
         const rectWidth = box.width * 1.1;
 
         const boxWidth = Math.max(250, box.sentence.length * 11);
         const boxHeight = 55;
-        const startX = rectX + rectWidth + 15;
-        const startY = rectY;
+        let startX = rectX + rectWidth + 15;
+        let startY = rectY;
+
+        // Boundary checking for horizontal overflow
+        // If text box goes beyond canvas width, position it on the left side of face
+        if (startX + boxWidth > canvasWidth) {
+          startX = rectX - boxWidth - 15;
+        }
+        // Ensure it doesn't go off the left edge either
+        if (startX < 0) {
+          startX = 10;
+        }
+
+        // Boundary checking for vertical overflow
+        if (startY + boxHeight > canvasHeight) {
+          startY = canvasHeight - boxHeight - 10;
+        }
+        if (startY < 0) {
+          startY = 10;
+        }
 
         return (
-          <g key={`sentence-${box.maskId}`}>
+          <g
+            key={`sentence-${box.maskId}`}
+            transform={`scale(-1, 1) translate(${-canvasWidth}, 0)`}
+          >
             {/* Retro Windows button style - outer light border */}
             <rect
               x={startX}
