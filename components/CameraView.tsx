@@ -67,9 +67,9 @@ export default function CameraView({ onExpressionChange }: CameraViewProps) {
   const [canvasDimensions, setCanvasDimensions] = useState({ width: 0, height: 0 });
   const [faceBoxes, setFaceBoxes] = useState<Array<{ x: number; y: number; width: number; height: number; maskId: string; sentence: string; maskType: string; landmarks?: any }>>([]);
   const animationFrameRef = useRef<number>();
-  const lastSwapTimeRef = useRef<number>(Date.now());
   const lastRenderTimeRef = useRef<number>(0);
-  const currentFacesRef = useRef<Array<{ x: number; y: number; width: number; height: number; maskId: string; sentence: string; maskType: string; landmarks?: any }>>([]);
+  const currentFacesRef = useRef<Array<{ x: number; y: number; width: number; height: number; maskId: string; sentence: string; maskType: string; landmarks?: any; lastSwapTime?: number }>>([]);
+  const faceSwapIntervalsRef = useRef<Map<number, number>>(new Map()); // Store individual swap times per face index
 
   useEffect(() => {
     let stream: MediaStream;
@@ -146,7 +146,7 @@ export default function CameraView({ onExpressionChange }: CameraViewProps) {
 
         if (detections && detections.length > 0) {
           const currentTime = Date.now();
-          const shouldSwap = currentTime - lastSwapTimeRef.current > 5000; // Change every 5000ms (5 seconds)
+          let shouldRender = false;
 
           const newFaceBoxes = detections.map((detection, index) => {
             const detectionBox = detection.detection.box;
@@ -155,15 +155,24 @@ export default function CameraView({ onExpressionChange }: CameraViewProps) {
             // Find previous face data from ref (not state)
             const prevFace = currentFacesRef.current[index];
 
+            // Check if THIS specific face should swap (each face has independent timer)
+            const lastSwapTime = faceSwapIntervalsRef.current.get(index) || 0;
+            const swapInterval = 7000 + (index * 1500); // 7-10.5 seconds, staggered by index
+            const shouldSwapThisFace = currentTime - lastSwapTime > swapInterval;
+
             let maskType: string;
             let sentence: string;
 
-            if (shouldSwap || !prevFace) {
-              // Time to swap or new face - generate random mask and sentence
+            if (shouldSwapThisFace || !prevFace) {
+              // Time to swap THIS face or new face - generate random mask and sentence
               const maskTypes = ['marc', 'tomo', 'heng'];
               maskType = maskTypes[Math.floor(Math.random() * maskTypes.length)];
               const sentences = SENTENCES[maskType as keyof typeof SENTENCES];
               sentence = sentences[Math.floor(Math.random() * sentences.length)];
+
+              // Update this face's swap time
+              faceSwapIntervalsRef.current.set(index, currentTime);
+              shouldRender = true; // Force render when any face swaps
             } else {
               // Keep previous mask and sentence
               maskType = prevFace.maskType;
@@ -185,20 +194,25 @@ export default function CameraView({ onExpressionChange }: CameraViewProps) {
           // Update ref immediately (no re-render)
           currentFacesRef.current = newFaceBoxes;
 
-          // Only update state every 100ms to reduce flickering, OR when swapping
-          const shouldRender = currentTime - lastRenderTimeRef.current > 100 || shouldSwap;
+          // Only update state every 100ms to reduce flickering, OR when any face swaps
+          const shouldUpdateState = currentTime - lastRenderTimeRef.current > 100 || shouldRender;
 
-          if (shouldRender) {
+          if (shouldUpdateState) {
             setFaceBoxes(newFaceBoxes);
             lastRenderTimeRef.current = currentTime;
           }
 
-          if (shouldSwap) {
-            lastSwapTimeRef.current = currentTime;
+          // Clean up swap times for faces that no longer exist
+          const currentFaceIndices = new Set(newFaceBoxes.map((_, idx) => idx));
+          for (const [faceIndex] of faceSwapIntervalsRef.current) {
+            if (!currentFaceIndices.has(faceIndex)) {
+              faceSwapIntervalsRef.current.delete(faceIndex);
+            }
           }
         } else {
           currentFacesRef.current = [];
           setFaceBoxes([]);
+          faceSwapIntervalsRef.current.clear(); // Clear all timers when no faces detected
         }
 
         animationFrameRef.current = requestAnimationFrame(detect);
@@ -249,10 +263,11 @@ export default function CameraView({ onExpressionChange }: CameraViewProps) {
 
       <canvas
         ref={canvasRef}
-        className="absolute inset-0 w-full h-full object-contain z-10"
+        className="absolute inset-0 w-full h-full z-10"
         style={{
           display: hasPermission ? "block" : "none",
-          transform: 'scaleX(-1)'
+          transform: 'scaleX(-1)',
+          objectFit: 'cover'
         }}
       />
 
