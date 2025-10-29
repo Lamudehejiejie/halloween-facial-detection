@@ -32,11 +32,26 @@ export default function MeasurementOverlay({
     >
       {/* Face rectangles with corner markers - Bold Showa style */}
       {faceBoxes.map((box) => {
-        const rectX = box.x;
-        // Use proportional offset instead of hardcoded value
-        const rectY = box.y - box.height * 0.5;
-        const rectWidth = box.width * 1.1;
-        const rectHeight = box.height * 1.5;
+        // Match mask size (2x face size) and positioning
+        const maskWidth = box.width * 2;
+        const maskHeight = box.height * 2;
+
+        // Calculate position to match mask (centered around nose if landmarks available)
+        let rectX: number;
+        let rectY: number;
+
+        if (box.landmarks) {
+          const nose = box.landmarks.getNose();
+          const noseTip = nose[3];
+          rectX = noseTip.x - maskWidth / 2;
+          rectY = noseTip.y - maskHeight * 0.5;
+        } else {
+          rectX = box.x - (maskWidth - box.width) / 2;
+          rectY = box.y - (maskHeight - box.height) / 2;
+        }
+
+        const rectWidth = maskWidth;
+        const rectHeight = maskHeight;
 
         return (
           <g key={box.maskId}>
@@ -48,7 +63,7 @@ export default function MeasurementOverlay({
               height={rectHeight}
               fill="none"
               stroke="#00ffff"
-              strokeWidth="3"
+              strokeWidth="6"
             />
 
             {/* Corner markers - retro style */}
@@ -60,20 +75,20 @@ export default function MeasurementOverlay({
             ].map(([x, y], i) => (
               <g key={`${box.maskId}-corner-${i}`}>
                 <line
-                  x1={x - 25}
+                  x1={x - 50}
                   y1={y}
-                  x2={x + 25}
+                  x2={x + 50}
                   y2={y}
                   stroke="#ff00ff"
-                  strokeWidth="4"
+                  strokeWidth="8"
                 />
                 <line
                   x1={x}
-                  y1={y - 25}
+                  y1={y - 50}
                   x2={x}
-                  y2={y + 25}
+                  y2={y + 50}
                   stroke="#ff00ff"
-                  strokeWidth="4"
+                  strokeWidth="8"
                 />
               </g>
             ))}
@@ -83,13 +98,29 @@ export default function MeasurementOverlay({
 
       {/* Sentences at top-right corner of each measurement overlay */}
       {faceBoxes.map((box) => {
-        const rectX = box.x;
-        // Use proportional offset instead of hardcoded value
-        const rectY = box.y - box.height * 0.5;
-        const rectWidth = box.width * 1.1;
+        // Match mask size (2x face size) and positioning
+        const maskWidth = box.width * 2;
+        const maskHeight = box.height * 2;
 
-        const boxWidth = Math.max(250, box.sentence.length * 11);
-        const boxHeight = 55;
+        // Calculate position to match mask (centered around nose if landmarks available)
+        let rectX: number;
+        let rectY: number;
+
+        if (box.landmarks) {
+          const nose = box.landmarks.getNose();
+          const noseTip = nose[3];
+          rectX = noseTip.x - maskWidth / 2;
+          rectY = noseTip.y - maskHeight * 0.5;
+        } else {
+          rectX = box.x - (maskWidth - box.width) / 2;
+          rectY = box.y - (maskHeight - box.height) / 2;
+        }
+
+        const rectWidth = maskWidth;
+        const rectHeight = maskHeight;
+
+        const boxWidth = Math.max(500, box.sentence.length * 22);
+        const boxHeight = 110;
         let startX = rectX + rectWidth + 15;
         let startY = rectY;
 
@@ -131,7 +162,7 @@ export default function MeasurementOverlay({
               x2={startX}
               y2={startY}
               stroke="#ffffff"
-              strokeWidth="3"
+              strokeWidth="6"
             />
             <line
               x1={startX}
@@ -139,7 +170,7 @@ export default function MeasurementOverlay({
               x2={startX + boxWidth}
               y2={startY}
               stroke="#ffffff"
-              strokeWidth="3"
+              strokeWidth="6"
             />
             {/* Bottom-right dark shadow */}
             <line
@@ -148,7 +179,7 @@ export default function MeasurementOverlay({
               x2={startX + boxWidth}
               y2={startY + boxHeight}
               stroke="#808080"
-              strokeWidth="3"
+              strokeWidth="6"
             />
             <line
               x1={startX}
@@ -156,15 +187,15 @@ export default function MeasurementOverlay({
               x2={startX + boxWidth}
               y2={startY + boxHeight}
               stroke="#808080"
-              strokeWidth="3"
+              strokeWidth="6"
             />
             {/* Text - simple black on gray */}
             <text
               x={startX + boxWidth / 2}
-              y={startY + boxHeight / 2 + 6}
+              y={startY + boxHeight / 2 + 12}
               textAnchor="middle"
               fill="#000000"
-              fontSize="16"
+              fontSize="32"
               fontWeight="bold"
               fontFamily="MS Gothic, Courier New, monospace"
             >

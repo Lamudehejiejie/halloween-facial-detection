@@ -32,7 +32,7 @@ export default function Home() {
     >
       {/* Retro Windows-style Header */}
       <div
-        className="mb-2 w-full max-w-7xl flex-shrink-0"
+        className="mb-2 w-[95%] flex-shrink-0"
         style={{
           background: '#c0c0c0',
           border: '2px outset #ffffff',
@@ -44,7 +44,7 @@ export default function Home() {
             background: '#000080',
             padding: '8px 12px',
             color: '#ffffff',
-            fontSize: '18px',
+            fontSize: '36px',
             fontWeight: 'bold',
             display: 'flex',
             justifyContent: 'space-between',
@@ -55,11 +55,11 @@ export default function Home() {
           <div style={{ display: 'flex', gap: '4px' }}>
             <button
               style={{
-                width: '24px',
-                height: '24px',
+                width: '48px',
+                height: '48px',
                 background: '#c0c0c0',
                 border: '2px outset #ffffff',
-                fontSize: '16px',
+                fontSize: '32px',
                 fontWeight: 'bold',
                 cursor: 'pointer',
               }}
@@ -69,11 +69,11 @@ export default function Home() {
             <button
               onClick={toggleFullscreen}
               style={{
-                width: '24px',
-                height: '24px',
+                width: '48px',
+                height: '48px',
                 background: '#c0c0c0',
                 border: '2px outset #ffffff',
-                fontSize: '14px',
+                fontSize: '28px',
                 fontWeight: 'bold',
                 cursor: 'pointer',
               }}
@@ -83,11 +83,11 @@ export default function Home() {
             </button>
             <button
               style={{
-                width: '24px',
-                height: '24px',
+                width: '48px',
+                height: '48px',
                 background: '#c0c0c0',
                 border: '2px outset #ffffff',
-                fontSize: '16px',
+                fontSize: '32px',
                 fontWeight: 'bold',
                 cursor: 'pointer',
               }}
@@ -104,7 +104,7 @@ export default function Home() {
         >
           <p
             style={{
-              fontSize: '13px',
+              fontSize: '26px',
               color: '#000000',
               marginBottom: '6px',
             }}
@@ -116,7 +116,7 @@ export default function Home() {
               background: '#ffffff',
               border: '2px inset #808080',
               padding: '4px 8px',
-              fontSize: '16px',
+              fontSize: '32px',
               color: '#000000',
             }}
           >
@@ -127,7 +127,7 @@ export default function Home() {
 
       {/* Camera container - retro Windows style */}
       <div
-        className="w-full max-w-7xl flex-grow"
+        className="w-[95%] flex-grow"
         style={{
           background: '#c0c0c0',
           border: '2px outset rgb(0, 0, 0)',
@@ -142,14 +142,14 @@ export default function Home() {
 
       {/* Footer - retro status bar style */}
       <div
-        className="mt-2 w-full max-w-7xl flex-shrink-0"
+        className="mt-2 w-[95%] flex-shrink-0"
         style={{
           background: '#c0c0c0',
           border: '2px inset #808080',
           padding: '4px 8px',
           display: 'flex',
           justifyContent: 'space-between',
-          fontSize: '12px',
+          fontSize: '24px',
         }}
       >
         <span style={{ color: '#000000' }}>準備完了</span>

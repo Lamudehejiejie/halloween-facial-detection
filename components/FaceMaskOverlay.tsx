@@ -36,9 +36,9 @@ export default function FaceMaskOverlay({
   return (
     <>
       {faceBoxes.map((faceBox, index) => {
-        // Calculate mask size - proportional to face size
-        const maskWidth = faceBox.width * 1.5;
-        const maskHeight = faceBox.height * 1.5;
+        // Calculate mask size - proportional to face size (larger to show full mask)
+        const maskWidth = faceBox.width * 2;
+        const maskHeight = faceBox.height * 2;
 
         // Calculate mask position
         let maskX: number;
@@ -50,18 +50,18 @@ export default function FaceMaskOverlay({
           const nose = faceBox.landmarks.getNose();
           const noseTip = nose[3]; // Middle point of nose
 
-          // Position mask centered on nose, shifted up
+          // Position mask centered on nose, shifted up to show full mask
           maskX = noseTip.x - maskWidth / 2;
-          maskY = noseTip.y - maskHeight * 0.65; // Position above nose
+          maskY = noseTip.y - maskHeight * 0.5; // Position centered around nose
         } else {
-          // Fallback: center on face box, shifted up proportionally
+          // Fallback: center on face box
           maskX = faceBox.x - (maskWidth - faceBox.width) / 2;
-          maskY = faceBox.y - (maskHeight - faceBox.height) / 2 - faceBox.height * 0.3;
+          maskY = faceBox.y - (maskHeight - faceBox.height) / 2;
         }
 
-        // Boundary checking to prevent cropping
-        // Add padding to ensure mask stays visible
-        const padding = 20;
+        // Boundary checking to prevent mask from going completely off-screen
+        // Allow mask to extend beyond edges slightly for better positioning
+        const padding = -maskWidth * 0.2; // Allow 20% of mask to go off-screen
         maskX = Math.max(padding, Math.min(maskX, canvasWidth - maskWidth - padding));
         maskY = Math.max(padding, Math.min(maskY, canvasHeight - maskHeight - padding));
 
@@ -83,10 +83,11 @@ export default function FaceMaskOverlay({
             <img
               src={maskSrc}
               alt="Face mask overlay"
-              className="w-full h-full object-cover"
+              className="w-full h-full"
               style={{
                 opacity: 1,
                 mixBlendMode: "normal",
+                objectFit: "contain",
               }}
             />
           </div>
