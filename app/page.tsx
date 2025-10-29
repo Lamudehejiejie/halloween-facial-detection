@@ -51,7 +51,7 @@ export default function Home() {
             alignItems: 'center',
           }}
         >
-          <span>■ 思考行動強制システム</span>
+          <span>■ 社長のことを聞くシステム</span>
           <div style={{ display: 'flex', gap: '4px' }}>
             <button
               style={{
@@ -109,7 +109,7 @@ export default function Home() {
               marginBottom: '6px',
             }}
           >
-            社長のいうことをしっかり聞いて下さい。
+            社長の指示に従って下さい。
           </p>
           <div
             style={{
