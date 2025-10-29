@@ -33,7 +33,7 @@ export default function MeasurementOverlay({
       {/* Face rectangles with corner markers - Bold Showa style */}
       {faceBoxes.map((box) => {
         // Match mask size (2x face size) and positioning
-        const maskWidth = box.width * 2;
+        const maskWidth = box.width * 1.3;
         const maskHeight = box.height * 2;
 
         // Calculate position to match mask (centered around nose if landmarks available)
